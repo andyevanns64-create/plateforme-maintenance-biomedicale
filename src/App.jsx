@@ -25,6 +25,8 @@ function App() {
   const [dateIntervention, setDateIntervention] = useState('')
   const [compteRendu, setCompteRendu] = useState('')
 
+  const [visioOuverte, setVisioOuverte] = useState(null)
+
   useEffect(() => {
     chargerDonnees()
   }, [])
@@ -127,6 +129,14 @@ function App() {
     chargerDonnees()
   }
 
+  function toggleVisio(incidentId) {
+    if (visioOuverte === incidentId) {
+      setVisioOuverte(null)
+    } else {
+      setVisioOuverte(incidentId)
+    }
+  }
+
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '700px', margin: '0 auto' }}>
       <h1>Maintenance biomédicale</h1>
@@ -216,10 +226,26 @@ function App() {
 
           <h2>Liste des incidents</h2>
           {incidents.length === 0 && <p>Aucun incident signalé.</p>}
-          <ul>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
             {incidents.map((inc) => (
-              <li key={inc.id}>
-                <strong>{nomEquipement(inc.equipement_id)}</strong> — {inc.description} — priorité <em>{inc.priorite}</em> — statut <em>{inc.statut}</em>
+              <li key={inc.id} style={{ marginBottom: '15px', border: '1px solid #eee', padding: '10px', borderRadius: '6px' }}>
+                <div>
+                  <strong>{nomEquipement(inc.equipement_id)}</strong> — {inc.description} — priorité <em>{inc.priorite}</em> — statut <em>{inc.statut}</em>
+                </div>
+                <button onClick={() => toggleVisio(inc.id)} style={{ marginTop: '8px' }}>
+                  {visioOuverte === inc.id ? 'Fermer la visioconférence' : '📹 Démarrer une visioconférence'}
+                </button>
+
+                {visioOuverte === inc.id && (
+                  <div style={{ marginTop: '10px' }}>
+                    <iframe
+                      src={`https://meet.jit.si/maintenance-biomed-incident-${inc.id}`}
+                      style={{ width: '100%', height: '400px', border: 'none', borderRadius: '6px' }}
+                      allow="camera; microphone; fullscreen; display-capture"
+                      title={`Visio incident ${inc.id}`}
+                    ></iframe>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
