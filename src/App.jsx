@@ -239,7 +239,7 @@ function App() {
                 {visioOuverte === inc.id && (
                   <div style={{ marginTop: '10px' }}>
                     <iframe
-                      src={`https://meet.ffmuc.net/maintenance-biomed-incident-${inc.id}#config.hideConferenceSubject=true&config.disableDeepLinking=true&config.prejoinConfig.enabled=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_BRAND_WATERMARK=false&interfaceConfig.SHOW_POWERED_BY=false`}
+                      src={`https://meet.jit.si/maintenance-biomed-incident-${inc.id}#config.hideConferenceSubject=true&config.disableDeepLinking=true&config.prejoinConfig.enabled=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_BRAND_WATERMARK=false&interfaceConfig.SHOW_POWERED_BY=false`}
                       style={{ width: '100%', height: '400px', border: 'none', borderRadius: '6px' }}
                       allow="camera; microphone; fullscreen; display-capture"
                       title={`Visio incident ${inc.id}`}
