@@ -287,7 +287,8 @@ function App() {
           <ul>
             {interventions.map((it) => (
               <li key={it.id}>
-                <strong>{equipementDeIncident(it.incident_id)}</strong> — {descriptionIncident(it.incident_id)} — technicien : {it.technicien} — le {it.date_intervention} — <em>{it.statut}</em>
+              <strong>{equipementDeIncident(it.incident_id)}</strong> — {descriptionIncident(it.incident_id)} — technicien : {it.technicien} — le {it.date_intervention} — <em>{it.statut}</em>
+{it.compte_rendu && <div style={{ marginTop: '4px', fontStyle: 'italic', color: '#555' }}>Compte-rendu : {it.compte_rendu}</div>}
               </li>
             ))}
           </ul>
