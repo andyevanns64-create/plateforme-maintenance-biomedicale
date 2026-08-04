@@ -1,4 +1,4 @@
-# MediLink — Plateforme collaborative de maintenance biomédicale à distance
+# Plateforme collaborative de maintenance biomédicale à distance
 
 ## Contexte
 
