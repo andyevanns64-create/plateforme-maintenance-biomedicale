@@ -34,9 +34,31 @@ function Badge({ label, style }) {
       backgroundColor: style?.bg || '#eee',
       color: style?.color || '#333',
       textTransform: 'capitalize',
+      whiteSpace: 'nowrap',
     }}>
       {label}
     </span>
+  )
+}
+
+function Toast({ message }) {
+  if (!message) return null
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      backgroundColor: '#111827',
+      color: 'white',
+      padding: '10px 20px',
+      borderRadius: '8px',
+      fontSize: '14px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+      zIndex: 1000,
+    }}>
+      ✅ {message}
+    </div>
   )
 }
 
@@ -51,11 +73,7 @@ const styleInput = {
   boxSizing: 'border-box',
 }
 
-const styleLabel = {
-  fontSize: '13px',
-  fontWeight: 600,
-  color: couleurs.texte,
-}
+const styleLabel = { fontSize: '13px', fontWeight: 600, color: couleurs.texte }
 
 const styleBouton = {
   backgroundColor: couleurs.accent,
@@ -85,6 +103,7 @@ function App() {
   const [interventions, setInterventions] = useState([])
   const [loading, setLoading] = useState(true)
   const [erreur, setErreur] = useState(null)
+  const [toast, setToast] = useState('')
 
   const [nom, setNom] = useState('')
   const [type, setType] = useState('')
@@ -106,6 +125,13 @@ function App() {
   useEffect(() => {
     chargerDonnees()
   }, [])
+
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(''), 3000)
+      return () => clearTimeout(t)
+    }
+  }, [toast])
 
   async function chargerDonnees() {
     setLoading(true)
@@ -163,6 +189,7 @@ function App() {
     if (error) { alert('Erreur : ' + error.message); return }
 
     setNom(''); setType(''); setNumeroSerie(''); setEtablissement(''); setStatut('fonctionnel')
+    setToast('Équipement ajouté avec succès')
     chargerDonnees()
   }
 
@@ -182,6 +209,7 @@ function App() {
     if (error) { alert('Erreur : ' + error.message); return }
 
     setEquipementId(''); setDescription(''); setPriorite('moyenne')
+    setToast('Incident signalé avec succès')
     chargerDonnees()
   }
 
@@ -202,6 +230,7 @@ function App() {
     if (error) { alert('Erreur : ' + error.message); return }
 
     setIncidentId(''); setTechnicien(''); setDateIntervention(''); setCompteRendu('')
+    setToast('Intervention planifiée avec succès')
     chargerDonnees()
   }
 
@@ -209,27 +238,39 @@ function App() {
     setVisioOuverte(visioOuverte === incidentId ? null : incidentId)
   }
 
+  const incidentsOuverts = incidents.filter((i) => i.statut === 'ouvert').length
+
   return (
     <div style={{ backgroundColor: couleurs.fond, minHeight: '100vh', fontFamily: "'Segoe UI', sans-serif" }}>
-      <div style={{ padding: '30px 20px', maxWidth: '760px', margin: '0 auto' }}>
+      <style>{`
+        * { box-sizing: border-box; }
+        @media (max-width: 480px) {
+          .nav-pill { padding: 6px 10px !important; font-size: 12px !important; }
+          .page-title { font-size: 19px !important; }
+          .carte-header { flex-direction: column; align-items: flex-start !important; gap: 8px; }
+        }
+      `}</style>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+      <div style={{ padding: '24px 16px', maxWidth: '760px', margin: '0 auto' }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
           <div style={{
             width: '34px', height: '34px', borderRadius: '8px',
             backgroundColor: couleurs.accent, color: 'white',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: '16px'
-          }}>+</div>
-          <h1 style={{ margin: 0, fontSize: '24px', color: couleurs.texte }}>Maintenance biomédicale</h1>
+            fontWeight: 700, fontSize: '16px', flexShrink: 0,
+          }}>🩺</div>
+          <h1 className="page-title" style={{ margin: 0, fontSize: '24px', color: couleurs.texte }}>Maintenance biomédicale</h1>
         </div>
         <p style={{ color: couleurs.texteClair, marginTop: '4px', marginBottom: '24px', fontSize: '14px' }}>
           Suivi des équipements, signalement d'incidents et interventions à distance
         </p>
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           {['equipements', 'incidents', 'interventions'].map((p) => (
             <button
               key={p}
+              className="nav-pill"
               onClick={() => setPage(p)}
               style={{
                 padding: '8px 16px',
@@ -240,10 +281,24 @@ function App() {
                 fontWeight: 600,
                 fontSize: '14px',
                 cursor: 'pointer',
-                textTransform: 'capitalize',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
               }}
             >
               {p === 'equipements' ? 'Équipements' : p === 'incidents' ? 'Incidents' : 'Interventions'}
+              {p === 'incidents' && incidentsOuverts > 0 && (
+                <span style={{
+                  backgroundColor: page === p ? 'white' : '#dc2626',
+                  color: page === p ? couleurs.accent : 'white',
+                  borderRadius: '999px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '1px 7px',
+                }}>
+                  {incidentsOuverts}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -278,7 +333,7 @@ function App() {
             {equipements.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucun équipement.</p>}
             {equipements.map((eq) => (
               <div key={eq.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="carte-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                   <div>
                     <strong>{eq.nom}</strong>
                     <div style={{ fontSize: '13px', color: couleurs.texteClair }}>
@@ -320,12 +375,12 @@ function App() {
             {incidents.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucun incident signalé.</p>}
             {incidents.map((inc) => (
               <div key={inc.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                <div className="carte-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
                   <div>
                     <strong>{nomEquipement(inc.equipement_id)}</strong>
                     <div style={{ fontSize: '13px', color: couleurs.texteClair, marginTop: '2px' }}>{inc.description}</div>
                   </div>
-                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
                     <Badge label={inc.priorite} style={badgePriorite[inc.priorite]} />
                     <Badge label={inc.statut} />
                   </div>
@@ -380,7 +435,7 @@ function App() {
             {interventions.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucune intervention.</p>}
             {interventions.map((it) => (
               <div key={it.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="carte-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                   <div>
                     <strong>{equipementDeIncident(it.incident_id)}</strong>
                     <div style={{ fontSize: '13px', color: couleurs.texteClair, marginTop: '2px' }}>
@@ -399,6 +454,8 @@ function App() {
           </div>
         )}
       </div>
+
+      <Toast message={toast} />
     </div>
   )
 }
