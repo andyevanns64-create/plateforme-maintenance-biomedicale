@@ -4,7 +4,7 @@
 
 Ce projet répond à une problématique de télémédecine à Madagascar : les établissements de santé (hôpitaux de district, cliniques mobiles, postes de santé ruraux) dépendent d'équipements biomédicaux (moniteurs, ECG, échographes, oxymètres, pompes à perfusion) dont la maintenance est freinée par l'éloignement des techniciens spécialisés et l'absence d'outils de gestion intégrés.
 
-MediLink propose une plateforme numérique permettant de suivre l'état des équipements, signaler les pannes, planifier les interventions techniques et assurer un diagnostic à distance via visioconférence.
+Cette plateforme numérique permet de suivre l'état des équipements, signaler les pannes, planifier les interventions techniques et assurer un diagnostic à distance via visioconférence.
 
 ## Fonctionnalités
 
