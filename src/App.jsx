@@ -1,6 +1,82 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 
+const couleurs = {
+  fond: '#f4f6f8',
+  carte: '#ffffff',
+  accent: '#0f766e',
+  accentClair: '#e6f4f2',
+  texte: '#1f2937',
+  texteClair: '#6b7280',
+  bordure: '#e5e7eb',
+}
+
+const badgePriorite = {
+  haute: { bg: '#fee2e2', color: '#b91c1c' },
+  moyenne: { bg: '#fef3c7', color: '#92400e' },
+  basse: { bg: '#dcfce7', color: '#166534' },
+}
+
+const badgeStatutEquipement = {
+  fonctionnel: { bg: '#dcfce7', color: '#166534' },
+  'en panne': { bg: '#fee2e2', color: '#b91c1c' },
+  'en maintenance': { bg: '#fef3c7', color: '#92400e' },
+}
+
+function Badge({ label, style }) {
+  return (
+    <span style={{
+      display: 'inline-block',
+      padding: '2px 10px',
+      borderRadius: '999px',
+      fontSize: '12px',
+      fontWeight: 600,
+      backgroundColor: style?.bg || '#eee',
+      color: style?.color || '#333',
+      textTransform: 'capitalize',
+    }}>
+      {label}
+    </span>
+  )
+}
+
+const styleInput = {
+  width: '100%',
+  padding: '8px 10px',
+  borderRadius: '6px',
+  border: `1px solid ${couleurs.bordure}`,
+  marginTop: '4px',
+  marginBottom: '12px',
+  fontSize: '14px',
+  boxSizing: 'border-box',
+}
+
+const styleLabel = {
+  fontSize: '13px',
+  fontWeight: 600,
+  color: couleurs.texte,
+}
+
+const styleBouton = {
+  backgroundColor: couleurs.accent,
+  color: 'white',
+  border: 'none',
+  padding: '10px 18px',
+  borderRadius: '6px',
+  fontWeight: 600,
+  fontSize: '14px',
+  cursor: 'pointer',
+}
+
+const styleCarte = {
+  backgroundColor: couleurs.carte,
+  borderRadius: '10px',
+  padding: '20px',
+  marginBottom: '24px',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+  border: `1px solid ${couleurs.bordure}`,
+}
+
 function App() {
   const [page, setPage] = useState('equipements')
 
@@ -130,109 +206,134 @@ function App() {
   }
 
   function toggleVisio(incidentId) {
-    if (visioOuverte === incidentId) {
-      setVisioOuverte(null)
-    } else {
-      setVisioOuverte(incidentId)
-    }
+    setVisioOuverte(visioOuverte === incidentId ? null : incidentId)
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '700px', margin: '0 auto' }}>
-      <h1>Maintenance biomédicale</h1>
+    <div style={{ backgroundColor: couleurs.fond, minHeight: '100vh', fontFamily: "'Segoe UI', sans-serif" }}>
+      <div style={{ padding: '30px 20px', maxWidth: '760px', margin: '0 auto' }}>
 
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={() => setPage('equipements')}
-          style={{ fontWeight: page === 'equipements' ? 'bold' : 'normal', marginRight: '10px' }}
-        >
-          Équipements
-        </button>
-        <button
-          onClick={() => setPage('incidents')}
-          style={{ fontWeight: page === 'incidents' ? 'bold' : 'normal', marginRight: '10px' }}
-        >
-          Incidents
-        </button>
-        <button
-          onClick={() => setPage('interventions')}
-          style={{ fontWeight: page === 'interventions' ? 'bold' : 'normal' }}
-        >
-          Interventions
-        </button>
-      </div>
-
-      {erreur && <p style={{ color: 'red' }}>Erreur : {erreur}</p>}
-      {loading && <p>Chargement...</p>}
-
-      {!loading && page === 'equipements' && (
-        <div>
-          <form onSubmit={ajouterEquipement} style={{ marginBottom: '30px', border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-            <h2>Ajouter un équipement</h2>
-            <div><label>Nom : </label><input value={nom} onChange={(e) => setNom(e.target.value)} required /></div>
-            <div><label>Type : </label><input value={type} onChange={(e) => setType(e.target.value)} required /></div>
-            <div><label>Numéro de série : </label><input value={numeroSerie} onChange={(e) => setNumeroSerie(e.target.value)} required /></div>
-            <div><label>Établissement : </label><input value={etablissement} onChange={(e) => setEtablissement(e.target.value)} required /></div>
-            <div>
-              <label>Statut : </label>
-              <select value={statut} onChange={(e) => setStatut(e.target.value)}>
-                <option value="fonctionnel">Fonctionnel</option>
-                <option value="en panne">En panne</option>
-                <option value="en maintenance">En maintenance</option>
-              </select>
-            </div>
-            <button type="submit">Ajouter</button>
-          </form>
-
-          <h2>Liste des équipements</h2>
-          {equipements.length === 0 && <p>Aucun équipement.</p>}
-          <ul>
-            {equipements.map((eq) => (
-              <li key={eq.id}>
-                <strong>{eq.nom}</strong> — {eq.type} — {eq.numero_serie} — {eq.etablissement} — <em>{eq.statut}</em>
-              </li>
-            ))}
-          </ul>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+          <div style={{
+            width: '34px', height: '34px', borderRadius: '8px',
+            backgroundColor: couleurs.accent, color: 'white',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: '16px'
+          }}>+</div>
+          <h1 style={{ margin: 0, fontSize: '24px', color: couleurs.texte }}>Maintenance biomédicale</h1>
         </div>
-      )}
+        <p style={{ color: couleurs.texteClair, marginTop: '4px', marginBottom: '24px', fontSize: '14px' }}>
+          Suivi des équipements, signalement d'incidents et interventions à distance
+        </p>
 
-      {!loading && page === 'incidents' && (
-        <div>
-          <form onSubmit={ajouterIncident} style={{ marginBottom: '30px', border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-            <h2>Signaler un incident</h2>
-            <div>
-              <label>Équipement concerné : </label>
-              <select value={equipementId} onChange={(e) => setEquipementId(e.target.value)} required>
-                <option value="">-- Choisir --</option>
-                {equipements.map((eq) => (
-                  <option key={eq.id} value={eq.id}>{eq.nom} ({eq.etablissement})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Description : </label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
-            </div>
-            <div>
-              <label>Priorité : </label>
-              <select value={priorite} onChange={(e) => setPriorite(e.target.value)}>
-                <option value="basse">Basse</option>
-                <option value="moyenne">Moyenne</option>
-                <option value="haute">Haute</option>
-              </select>
-            </div>
-            <button type="submit">Signaler</button>
-          </form>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+          {['equipements', 'incidents', 'interventions'].map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '999px',
+                border: `1px solid ${page === p ? couleurs.accent : couleurs.bordure}`,
+                backgroundColor: page === p ? couleurs.accent : 'white',
+                color: page === p ? 'white' : couleurs.texte,
+                fontWeight: 600,
+                fontSize: '14px',
+                cursor: 'pointer',
+                textTransform: 'capitalize',
+              }}
+            >
+              {p === 'equipements' ? 'Équipements' : p === 'incidents' ? 'Incidents' : 'Interventions'}
+            </button>
+          ))}
+        </div>
 
-          <h2>Liste des incidents</h2>
-          {incidents.length === 0 && <p>Aucun incident signalé.</p>}
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            {incidents.map((inc) => (
-              <li key={inc.id} style={{ marginBottom: '15px', border: '1px solid #eee', padding: '10px', borderRadius: '6px' }}>
-                <div>
-                  <strong>{nomEquipement(inc.equipement_id)}</strong> — {inc.description} — priorité <em>{inc.priorite}</em> — statut <em>{inc.statut}</em>
+        {erreur && <p style={{ color: '#b91c1c' }}>Erreur : {erreur}</p>}
+        {loading && <p style={{ color: couleurs.texteClair }}>Chargement...</p>}
+
+        {!loading && page === 'equipements' && (
+          <div>
+            <div style={styleCarte}>
+              <h2 style={{ marginTop: 0, fontSize: '17px' }}>Ajouter un équipement</h2>
+              <form onSubmit={ajouterEquipement}>
+                <label style={styleLabel}>Nom</label>
+                <input style={styleInput} value={nom} onChange={(e) => setNom(e.target.value)} required />
+                <label style={styleLabel}>Type</label>
+                <input style={styleInput} value={type} onChange={(e) => setType(e.target.value)} required />
+                <label style={styleLabel}>Numéro de série</label>
+                <input style={styleInput} value={numeroSerie} onChange={(e) => setNumeroSerie(e.target.value)} required />
+                <label style={styleLabel}>Établissement</label>
+                <input style={styleInput} value={etablissement} onChange={(e) => setEtablissement(e.target.value)} required />
+                <label style={styleLabel}>Statut</label>
+                <select style={styleInput} value={statut} onChange={(e) => setStatut(e.target.value)}>
+                  <option value="fonctionnel">Fonctionnel</option>
+                  <option value="en panne">En panne</option>
+                  <option value="en maintenance">En maintenance</option>
+                </select>
+                <button type="submit" style={styleBouton}>Ajouter</button>
+              </form>
+            </div>
+
+            <h2 style={{ fontSize: '17px', color: couleurs.texte }}>Liste des équipements</h2>
+            {equipements.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucun équipement.</p>}
+            {equipements.map((eq) => (
+              <div key={eq.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong>{eq.nom}</strong>
+                    <div style={{ fontSize: '13px', color: couleurs.texteClair }}>
+                      {eq.type} — n° {eq.numero_serie} — {eq.etablissement}
+                    </div>
+                  </div>
+                  <Badge label={eq.statut} style={badgeStatutEquipement[eq.statut]} />
                 </div>
-                <button onClick={() => toggleVisio(inc.id)} style={{ marginTop: '8px' }}>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!loading && page === 'incidents' && (
+          <div>
+            <div style={styleCarte}>
+              <h2 style={{ marginTop: 0, fontSize: '17px' }}>Signaler un incident</h2>
+              <form onSubmit={ajouterIncident}>
+                <label style={styleLabel}>Équipement concerné</label>
+                <select style={styleInput} value={equipementId} onChange={(e) => setEquipementId(e.target.value)} required>
+                  <option value="">-- Choisir --</option>
+                  {equipements.map((eq) => (
+                    <option key={eq.id} value={eq.id}>{eq.nom} ({eq.etablissement})</option>
+                  ))}
+                </select>
+                <label style={styleLabel}>Description</label>
+                <textarea style={{ ...styleInput, minHeight: '70px' }} value={description} onChange={(e) => setDescription(e.target.value)} required />
+                <label style={styleLabel}>Priorité</label>
+                <select style={styleInput} value={priorite} onChange={(e) => setPriorite(e.target.value)}>
+                  <option value="basse">Basse</option>
+                  <option value="moyenne">Moyenne</option>
+                  <option value="haute">Haute</option>
+                </select>
+                <button type="submit" style={styleBouton}>Signaler</button>
+              </form>
+            </div>
+
+            <h2 style={{ fontSize: '17px', color: couleurs.texte }}>Liste des incidents</h2>
+            {incidents.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucun incident signalé.</p>}
+            {incidents.map((inc) => (
+              <div key={inc.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                  <div>
+                    <strong>{nomEquipement(inc.equipement_id)}</strong>
+                    <div style={{ fontSize: '13px', color: couleurs.texteClair, marginTop: '2px' }}>{inc.description}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    <Badge label={inc.priorite} style={badgePriorite[inc.priorite]} />
+                    <Badge label={inc.statut} />
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleVisio(inc.id)}
+                  style={{ ...styleBouton, backgroundColor: couleurs.accentClair, color: couleurs.accent, marginTop: '12px', fontSize: '13px', padding: '6px 12px' }}
+                >
                   {visioOuverte === inc.id ? 'Fermer la visioconférence' : '📹 Démarrer une visioconférence'}
                 </button>
 
@@ -240,60 +341,64 @@ function App() {
                   <div style={{ marginTop: '10px' }}>
                     <iframe
                       src={`https://meet.jit.si/maintenance-biomed-incident-${inc.id}#config.hideConferenceSubject=true&config.disableDeepLinking=true&config.prejoinConfig.enabled=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_BRAND_WATERMARK=false&interfaceConfig.SHOW_POWERED_BY=false`}
-                      style={{ width: '100%', height: '400px', border: 'none', borderRadius: '6px' }}
+                      style={{ width: '100%', height: '400px', border: 'none', borderRadius: '8px' }}
                       allow="camera; microphone; fullscreen; display-capture"
                       title={`Visio incident ${inc.id}`}
                     ></iframe>
                   </div>
                 )}
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
 
-      {!loading && page === 'interventions' && (
-        <div>
-          <form onSubmit={ajouterIntervention} style={{ marginBottom: '30px', border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-            <h2>Planifier une intervention</h2>
-            <div>
-              <label>Incident concerné : </label>
-              <select value={incidentId} onChange={(e) => setIncidentId(e.target.value)} required>
-                <option value="">-- Choisir --</option>
-                {incidents.map((inc) => (
-                  <option key={inc.id} value={inc.id}>
-                    {nomEquipement(inc.equipement_id)} — {inc.description}
-                  </option>
-                ))}
-              </select>
+        {!loading && page === 'interventions' && (
+          <div>
+            <div style={styleCarte}>
+              <h2 style={{ marginTop: 0, fontSize: '17px' }}>Planifier une intervention</h2>
+              <form onSubmit={ajouterIntervention}>
+                <label style={styleLabel}>Incident concerné</label>
+                <select style={styleInput} value={incidentId} onChange={(e) => setIncidentId(e.target.value)} required>
+                  <option value="">-- Choisir --</option>
+                  {incidents.map((inc) => (
+                    <option key={inc.id} value={inc.id}>
+                      {nomEquipement(inc.equipement_id)} — {inc.description}
+                    </option>
+                  ))}
+                </select>
+                <label style={styleLabel}>Technicien</label>
+                <input style={styleInput} value={technicien} onChange={(e) => setTechnicien(e.target.value)} required />
+                <label style={styleLabel}>Date d'intervention</label>
+                <input type="date" style={styleInput} value={dateIntervention} onChange={(e) => setDateIntervention(e.target.value)} required />
+                <label style={styleLabel}>Compte-rendu</label>
+                <textarea style={{ ...styleInput, minHeight: '70px' }} value={compteRendu} onChange={(e) => setCompteRendu(e.target.value)} />
+                <button type="submit" style={styleBouton}>Planifier</button>
+              </form>
             </div>
-            <div>
-              <label>Technicien : </label>
-              <input value={technicien} onChange={(e) => setTechnicien(e.target.value)} required />
-            </div>
-            <div>
-              <label>Date d'intervention : </label>
-              <input type="date" value={dateIntervention} onChange={(e) => setDateIntervention(e.target.value)} required />
-            </div>
-            <div>
-              <label>Compte-rendu : </label>
-              <textarea value={compteRendu} onChange={(e) => setCompteRendu(e.target.value)} />
-            </div>
-            <button type="submit">Planifier</button>
-          </form>
 
-          <h2>Liste des interventions</h2>
-          {interventions.length === 0 && <p>Aucune intervention.</p>}
-          <ul>
+            <h2 style={{ fontSize: '17px', color: couleurs.texte }}>Liste des interventions</h2>
+            {interventions.length === 0 && <p style={{ color: couleurs.texteClair }}>Aucune intervention.</p>}
             {interventions.map((it) => (
-              <li key={it.id}>
-              <strong>{equipementDeIncident(it.incident_id)}</strong> — {descriptionIncident(it.incident_id)} — technicien : {it.technicien} — le {it.date_intervention} — <em>{it.statut}</em>
-{it.compte_rendu && <div style={{ marginTop: '4px', fontStyle: 'italic', color: '#555' }}>Compte-rendu : {it.compte_rendu}</div>}
-              </li>
+              <div key={it.id} style={{ ...styleCarte, marginBottom: '12px', padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong>{equipementDeIncident(it.incident_id)}</strong>
+                    <div style={{ fontSize: '13px', color: couleurs.texteClair, marginTop: '2px' }}>
+                      {descriptionIncident(it.incident_id)} — technicien : {it.technicien} — le {it.date_intervention}
+                    </div>
+                    {it.compte_rendu && (
+                      <div style={{ fontSize: '13px', color: couleurs.texte, marginTop: '6px', fontStyle: 'italic' }}>
+                        Compte-rendu : {it.compte_rendu}
+                      </div>
+                    )}
+                  </div>
+                  <Badge label={it.statut} />
+                </div>
+              </div>
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
